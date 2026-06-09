@@ -1,0 +1,11 @@
+lab_result_id,patient_id,test_name,test_date,result_value,result_unit
+L001,P001,HbA1c,2023-03-02,42,mmol/mol
+L002,P002,HbA1c,2023-03-05,999,mmol/mol
+L003,P003,CRP,2023-04-11,15,mg/L
+L004,P004,CRP,2023-05-02,-5,mg/L
+L005,P005,Glucose,2023-05-11,5.8,mmol/L
+L006,P006,Glucose,2026-01-01,6.2,mmol/L
+L007,P010,HbA1c,2023-06-01,50,mmol/mol
+L008,P007,CRP,,20,mg/L
+L009,P007,glucose,2023-06-16,7.1,mmol/L
+L009,P007,glucose,2023-06-16,7.1,mmol/L
