@@ -6,7 +6,6 @@ Deze dataset bevat synthetische healthcare-data over patiënten, opnames en labr
 ## 2. Belangrijkste data quality-risico’s
 De belangrijkste risico’s zijn ontbrekende patiënt-ID’s, dubbele records, ongeldige datums, inconsistente categorieën, negatieve of extreme waarden en records die niet gekoppeld kunnen worden aan een bestaande patiënt.
 
-## 3. Data quality checks -  eerste resultaten
 ## 3. Data Quality Checks - Eerste Resultaten
 
 | Nr | Check                                 | Type                   | Werkelijke uitkomst                                                 | Ernst  | Actie                                                                                                                                               |
@@ -59,4 +58,3 @@ Concreet betekent dit:
 * standaardisatieregels maken voor categorieën zoals gender, department en test_name;
 * referentiële fouten apart rapporteren;
 * bepalen welke records veilig gebruikt kunnen worden voor rapportage of machine learning.
-
