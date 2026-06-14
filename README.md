@@ -47,4 +47,20 @@ healthcare-data-quality-sql-pipeline/
 │   ├── 03_sql_refresh_exercises.sql
 │   ├── 04_my_own_checks.sql
 │   └── 05_cleaned_layer_views.sql
-└── README.md
+└── README.mdBlok 7 klaar:
+
+## 5. Data Quality Report
+
+The project now includes an initial SQL-based data quality report:
+
+- `SQL/06_data_quality_report.sql`
+
+This report summarizes quality flags from the cleaned views and counts the number of issue records per entity and quality check.
+
+Current report scope:
+
+- patient quality checks;
+- admission quality checks;
+- lab result quality checks.
+
+The report uses `UNION ALL` to combine issue counts from multiple cleaned views into one reproducible overview. Duplicate flags are counted at record level, meaning that all records involved in a duplicate issue are included in the issue count.

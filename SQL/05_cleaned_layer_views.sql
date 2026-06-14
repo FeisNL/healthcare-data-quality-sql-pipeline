@@ -150,3 +150,74 @@ select
 from cleaned_admissions
 group by department_standardized
 order by record_count desc;
+
+/*
+===============================================================================
+View 3: cleaned_lab_results
+
+Doel:
+Deze view maakt een gestandaardiseerde labresultatenlaag bovenop de raw
+lab_results-tabel.
+
+De view behoudt alle raw labresultaten en voegt quality flags toe voor:
+- dubbele lab_result_id's;
+- onbekende patient_id's;
+- ontbrekende testdatums;
+- toekomstige testdatums;
+- negatieve of extreme result_value waarden.
+===============================================================================
+*/
+
+CREATE OR REPLACE VIEW cleaned_lab_results AS
+WITH duplicate_lab_results AS (
+    SELECT
+        lab_result_id
+    FROM lab_results
+    WHERE lab_result_id IS NOT NULL
+      AND TRIM(lab_result_id) <> ''
+    GROUP BY lab_result_id
+    HAVING COUNT(*) > 1
+)
+SELECT
+    l.lab_result_id,
+    l.patient_id,
+
+    CASE
+        WHEN l.test_name IS NULL OR TRIM(l.test_name) = '' THEN NULL
+        ELSE INITCAP(TRIM(l.test_name))
+    END AS test_name_standardized,
+
+    l.test_date,
+    l.result_value,
+    l.result_unit,
+
+    CASE
+        WHEN dl.lab_result_id IS NOT NULL THEN TRUE
+        ELSE FALSE
+    END AS has_duplicate_lab_result_id,
+
+    CASE
+        WHEN p.patient_id IS NULL THEN TRUE
+        ELSE FALSE
+    END AS has_unknown_patient_id,
+
+    CASE
+        WHEN l.test_date IS NULL THEN TRUE
+        ELSE FALSE
+    END AS has_missing_test_date,
+
+    CASE
+        WHEN l.test_date > CURRENT_DATE THEN TRUE
+        ELSE FALSE
+    END AS has_future_test_date,
+
+    CASE
+        WHEN l.result_value < 0 OR l.result_value > 500 THEN TRUE
+        ELSE FALSE
+    END AS has_invalid_result_value
+
+FROM lab_results l
+LEFT JOIN patients p
+    ON l.patient_id = p.patient_id
+LEFT JOIN duplicate_lab_results dl
+    ON l.lab_result_id = dl.lab_result_id;
