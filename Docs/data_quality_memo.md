@@ -43,18 +43,14 @@ Daarom moet deze data eerst worden opgeschoond, gevalideerd en gedocumenteerd vo
 
 ## 6. Beperkingen
 
-De dataset is synthetisch en klein. Daardoor is deze geschikt om data quality checks te ontwerpen en te testen, maar niet om echte medische conclusies te trekken.
+Het SQL-gebaseerde data quality report vat de bevindingen uit de cleaned views samen. In dit report worden de quality flags per entiteit geteld en gekoppeld aan een severity level. Hierdoor wordt zichtbaar welke problemen het grootste risico vormen voor rapportage, analyse en latere machine learning.
 
-Daarnaast zijn sommige regels voorlopig aangenomen. Bijvoorbeeld: genderwaarden zijn in deze dataset voorlopig beperkt tot 'M' en 'F'. In een echte organisatie moet eerst worden vastgesteld welk coderingsschema officieel wordt gebruikt.
+De belangrijkste high-risk issues zitten in identificatie, koppelingen tussen tabellen en datumlogica. In de patientdata is één record zonder patient_id gevonden en zijn twee records betrokken bij een dubbele patient_id. In de admissions-data zijn drie records gevonden met een patient_id die niet voorkomt in de patients-tabel. Ook is er één opname waarbij de discharge_date vóór de admission_date ligt. In de lab_results-data zijn twee records betrokken bij een dubbele lab_result_id en is één labresultaat gekoppeld aan een onbekende patient_id.
 
-## 7. Volgende stap
+De medium-risk issues bestaan vooral uit waarden die eerst gecontroleerd of geïnterpreteerd moeten worden voordat ze veilig gebruikt kunnen worden. Voorbeelden hiervan zijn een onrealistische geboortedatum, inconsistente genderwaarden, een ontbrekende afdeling, een negatieve total_cost, een ontbrekende test_date en ongeldige labwaarden. Deze issues hoeven niet altijd direct verwijderd te worden, maar moeten wel zichtbaar blijven in de cleaned layer.
 
-De volgende stap is het ontwerpen van een cleaned layer. Daarin worden foutieve records gemarkeerd, categorieën gestandaardiseerd en alleen gevalideerde records gebruikt voor verdere analyse.
+Een belangrijk technisch controlepunt is dat alle cleaned views dezelfde row count behouden als de oorspronkelijke raw tabellen. cleaned_patients, cleaned_admissions en cleaned_lab_results bevatten elk 10 records. Dit betekent dat de joins in de cleaned layer geen kunstmatige row multiplication meer veroorzaken.
 
-Concreet betekent dit:
+De data is bruikbaar om data quality workflows te oefenen, maar nog niet geschikt voor betrouwbare rapportage of machine learning zonder aanvullende filtering, correctieregels en validatie. De cleaned layer maakt de risico’s zichtbaar met quality flags, zodat per analyse bepaald kan worden welke records wel of niet veilig gebruikt kunnen worden.
 
-* severity levels toevoegen aan iedere data quality check;
-* foutieve records markeren in plaats van direct verwijderen;
-* standaardisatieregels maken voor categorieën zoals gender, department en test_name;
-* referentiële fouten apart rapporteren;
-* bepalen welke records veilig gebruikt kunnen worden voor rapportage of machine learning.
+De severity-indeling is voorlopig handmatig bepaald op basis van het risico voor identificatie, koppelingen, datumlogica en analysebetrouwbaarheid. In een echte organisatie moeten deze severity levels worden afgestemd met domeinexperts, data-eigenaren of andere betrokkenen.

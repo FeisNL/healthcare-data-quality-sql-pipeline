@@ -64,3 +64,22 @@ Current report scope:
 - lab result quality checks.
 
 The report uses `UNION ALL` to combine issue counts from multiple cleaned views into one reproducible overview. Duplicate flags are counted at record level, meaning that all records involved in a duplicate issue are included in the issue count.
+
+## Reproducible Run Order
+To reproduce the current SQL pipeline, run the scripts in this order:
+
+1. `SQL/00_create_tables.sql`
+2. Import the CSV files from `Data/Raw/` into PostgreSQL.
+3. `SQL/01_schema_exploration.sql`
+4. `SQL/02_data_quality_checks.sql`
+5. `SQL/05_cleaned_layer_views.sql`
+6. `SQL/06_data_quality_report.sql`
+7. `SQL/07_quality_report_validation.sql`
+
+The cleaned views should preserve the raw row counts:
+
+- `cleaned_patients`: 10 records
+- `cleaned_admissions`: 10 records
+- `cleaned_lab_results`: 10 records
+
+If a cleaned view returns more rows than the raw table, this may indicate row multiplication caused by a join on a non-unique key.
