@@ -78,6 +78,7 @@ To reproduce the current SQL pipeline, run the scripts in this order:
 8. `SQL/08_curated_analysis_views.sql`
 9. `SQL/09_curated_analysis_queries.sql`
 10. `SQL/10_feature_table_draft.sql`
+11. `SQL/11_feature_table_quality_checks.sql`
 
 The cleaned views should preserve the raw row counts:
 
@@ -99,3 +100,19 @@ The feature table uses curated admissions and curated patients as input. It incl
 The first feature table check showed that some admissions can have NULL patient features when the admission remains in `curated_admissions`, but the linked patient is excluded from `curated_patients`. These cases are documented as a data quality design issue.
 
 This is not yet a machine learning dataset. A target variable, leakage checks, train/test split and evaluation strategy still need to be defined.
+
+## Feature Table Quality Checks
+
+The project now includes quality checks for the first feature table:
+
+- `SQL/11_feature_table_quality_checks.sql`
+
+These checks validate row count, admission-level grain, missing patient features, derived date features and cost-related risks.
+
+The checks showed that the feature table keeps the expected admission-level grain, but still contains important data quality signals:
+
+- admissions `A003` and `A008` have missing patient-derived features;
+- one admission has a missing `length_of_stay_days` because `discharge_date` is missing;
+- cost-related risks remain present, including one negative and one extreme `total_cost`.
+
+This step shows that feature engineering does not remove data quality risks automatically. Feature tables also need their own validation checks.
