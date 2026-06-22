@@ -75,6 +75,9 @@ To reproduce the current SQL pipeline, run the scripts in this order:
 5. `SQL/05_cleaned_layer_views.sql`
 6. `SQL/06_data_quality_report.sql`
 7. `SQL/07_quality_report_validation.sql`
+8. `SQL/08_curated_analysis_views.sql`
+9. `SQL/09_curated_analysis_queries.sql`
+10. `SQL/10_feature_table_draft.sql`
 
 The cleaned views should preserve the raw row counts:
 
@@ -83,3 +86,16 @@ The cleaned views should preserve the raw row counts:
 - `cleaned_lab_results`: 10 records
 
 If a cleaned view returns more rows than the raw table, this may indicate row multiplication caused by a join on a non-unique key.
+
+## Feature Table Draft
+
+The project now includes a first draft of an admission-level feature table:
+
+- `SQL/10_feature_table_draft.sql`
+- `Docs/feature_table_design.md`
+
+The feature table uses curated admissions and curated patients as input. It includes derived fields such as `length_of_stay_days` and `age_at_admission`.
+
+The first feature table check showed that some admissions can have NULL patient features when the admission remains in `curated_admissions`, but the linked patient is excluded from `curated_patients`. These cases are documented as a data quality design issue.
+
+This is not yet a machine learning dataset. A target variable, leakage checks, train/test split and evaluation strategy still need to be defined.
