@@ -29,3 +29,29 @@ Vervolgens heb ik een data quality report gemaakt met severity levels en een val
 
 ## Take away 3:
 De belangrijkste les is dat data niet zomaar verwijderd moet worden. Fouten moeten eerst zichtbaar, controleerbaar en uitlegbaar worden gemaakt.
+
+## Datum: 22-6-2026
+
+## Cursus / thema
+Data Engineering + SQL fundamentals
+
+## Onderwerpen
+- Feature table grain
+- LEFT JOIN tussen curated views
+- Derived columns
+- `length_of_stay_days`
+- `age_at_admission`
+- NULL-controle na joins
+- Data quality-risico’s in feature tables
+
+## Koppeling met project
+Vandaag heb ik een eerste admission-level feature table gebouwd. Hierbij werd duidelijk dat een feature table niet alleen bestaat uit kolommen selecteren, maar ook uit keuzes maken over grain, joins, afgeleide kolommen en data quality-risico’s.
+
+## Belangrijkste inzicht
+Cleaned en curated data vormen de basis voor feature engineering, maar joins kunnen nieuwe NULL-problemen zichtbaar maken. Deze NULLs moeten worden onderzocht voordat de data geschikt is voor analyse of machine learning.
+
+## Nog oefenen
+- Zelf feature queries schrijven
+- LEFT JOIN-resultaten controleren
+- NULLs na joins interpreteren
+- SQL-functies zoals `AGE()` en `DATE_PART()` beter begrijpen

@@ -34,6 +34,42 @@ WHERE has_negative_total_cost = FALSE
   AND total_cost < 100000;
 
 
+-- Analyse 2a: gemiddelde total_cost inclusief extreme waarden
+-- Doel:
+-- Laat zien wat het gemiddelde is wanneer alleen negatieve kosten worden uitgesloten.
+-- Extreme waarden blijven hier nog aanwezig.
+SELECT
+    ROUND(AVG(total_cost), 2) AS avg_total_cost_including_extreme
+FROM curated_admissions
+WHERE has_negative_total_cost = FALSE;
+
+
+-- Analyse 2b: gemiddelde total_cost exclusief negatieve en extreme waarden
+-- Doel:
+-- Laat zien wat het gemiddelde is wanneer negatieve kosten én extreme waarden
+-- worden uitgesloten, omdat deze de kostenanalyse kunnen vertekenen.
+SELECT
+    ROUND(AVG(total_cost), 2) AS avg_total_cost_excluding_extreme
+FROM curated_admissions
+WHERE has_negative_total_cost = FALSE
+  AND total_cost < 100000;
+
+-- Interpretatie:
+-- De extreme total_cost-waarde heeft grote invloed op het gemiddelde.
+-- Daarom wordt voor deze eerste kostenanalyse een voorlopige technische grens gebruikt.
+-- In een echte organisatie moet deze grens worden afgestemd met domeinexperts,
+-- finance of data owners.
+
+-- Analyse 2c: extreme total_cost records inside curated_admissions
+-- Deze records zitten nog in de curated layer, maar worden uitgesloten
+-- uit de gemiddelde kostenanalyse omdat ze het gemiddelde vertekenen.
+select admission_id,
+		patient_id,
+		department_standardized,
+		total_cost
+from curated_admissions
+where total_cost >= 100000;
+
 -- Analyse 3: aantal veilige lab results per test type
 SELECT
     test_name_standardized,
