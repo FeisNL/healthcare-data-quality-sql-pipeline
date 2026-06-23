@@ -86,3 +86,15 @@ Ontbrekende/onjuiste koppelingen
 
 ### Interviewwaardige uitleg
 Bij het ontwerpen van de feature table heb ik gekeken welke data quality issues de belangrijkste features direct kunnen beïnvloeden. Extreme kosten kunnen kostenfeatures en gemiddelden vertekenen. Ongeldige datums kunnen afgeleide features zoals length_of_stay_days en age_at_admission fout maken. Onjuiste koppelingen tussen admissions en patients kunnen ervoor zorgen dat patiëntfeatures ontbreken of verkeerd gekoppeld worden. Daarom zijn dit de belangrijkste risico’s voor deze eerste feature table.
+
+### Eerste feature table check
+
+De eerste view `feature_admission_base` gebruikt `curated_admissions` als basis en voegt patiëntkenmerken toe via een `LEFT JOIN` met `curated_patients`.
+
+De view bevat 6 records. Dit komt overeen met de row count van `curated_admissions`, omdat alle curated admissions behouden blijven.
+
+Bij de eerste controle zijn NULL-waarden gevonden in patient features bij admission_id `A003` en `A008`. Dit betekent dat deze admissions wel in `curated_admissions` staan, maar geen match hebben met `curated_patients`.
+
+Dit is een belangrijk data quality-signaal. De admission-records zelf kunnen nog bruikbaar zijn voor admission-level analyses, maar patient-derived features zoals `gender_standardized`, `birth_date` en `age_at_admission` zijn voor deze records niet betrouwbaar beschikbaar.
+
+Voor latere analyse of machine learning moet worden besloten of deze records behouden, uitgesloten of apart gemarkeerd worden. Een mogelijke vervolgstap is het toevoegen van een flag zoals `has_missing_patient_features`.

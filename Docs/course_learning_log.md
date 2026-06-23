@@ -55,3 +55,30 @@ Cleaned en curated data vormen de basis voor feature engineering, maar joins kun
 - LEFT JOIN-resultaten controleren
 - NULLs na joins interpreteren
 - SQL-functies zoals `AGE()` en `DATE_PART()` beter begrijpen
+
+## Datum: [23-6-2026]
+
+## Cursus / thema
+Data Engineering + SQL fundamentals
+
+## Onderwerpen
+- CASE statements
+- Feature-level quality flags
+- CTE gebruiken voor tussenstappen
+- `is_analysis_ready`
+- Compact quality profile met `SUM(CASE WHEN...)`
+- Feature table v2 quality checks
+
+## Koppeling met project
+Vandaag heb ik `feature_admission_v2` gebouwd. Deze view voegt feature-level quality flags toe aan de eerste feature table. Hierdoor worden ontbrekende patient features, ligduurproblemen en kostenrisico’s expliciet zichtbaar.
+
+Daarna heb ik quality checks geschreven om te controleren of de feature table de juiste row count, grain en quality flag-verdeling heeft.
+
+## Belangrijkste inzicht
+Een feature table is pas bruikbaar als de output na joins en afgeleide kolommen opnieuw gecontroleerd wordt. Flags maken problemen zichtbaar en compacte quality profiles laten snel zien hoeveel records per issue geraakt worden.
+
+## Nog oefenen
+- Zelf CASE statements schrijven
+- Zelf CTE’s gebruiken
+- Compacte quality profiles schrijven
+- SQL-logica debuggen wanneer counts niet kloppen

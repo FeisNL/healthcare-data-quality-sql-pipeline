@@ -79,6 +79,8 @@ To reproduce the current SQL pipeline, run the scripts in this order:
 9. `SQL/09_curated_analysis_queries.sql`
 10. `SQL/10_feature_table_draft.sql`
 11. `SQL/11_feature_table_quality_checks.sql`
+12. `SQL/12_feature_table_v2.sql`
+13. `SQL/13_feature_table_v2_quality_checks.sql`
 
 The cleaned views should preserve the raw row counts:
 
@@ -116,3 +118,21 @@ The checks showed that the feature table keeps the expected admission-level grai
 - cost-related risks remain present, including one negative and one extreme `total_cost`.
 
 This step shows that feature engineering does not remove data quality risks automatically. Feature tables also need their own validation checks.
+
+## Feature Table V2
+
+The project now includes a second feature table view:
+
+- `SQL/12_feature_table_v2.sql`
+- `SQL/13_feature_table_v2_quality_checks.sql`
+
+Feature table v2 adds feature-level quality flags:
+
+- `has_missing_patient_features`
+- `has_length_of_stay_issue`
+- `has_cost_issue`
+- `is_analysis_ready`
+
+The quality checks show that the feature table contains 6 records. One record is currently analysis-ready based on the feature-level rules. The remaining records contain missing patient features, a length-of-stay issue or cost-related issues.
+
+This step demonstrates that feature engineering does not remove data quality risks automatically. Feature tables require their own validation checks.
