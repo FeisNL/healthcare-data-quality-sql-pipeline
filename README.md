@@ -81,6 +81,7 @@ To reproduce the current SQL pipeline, run the scripts in this order:
 11. `SQL/11_feature_table_quality_checks.sql`
 12. `SQL/12_feature_table_v2.sql`
 13. `SQL/13_feature_table_v2_quality_checks.sql`
+14. `SQL/14_analysis_ready_feature_view.sql`
 
 The cleaned views should preserve the raw row counts:
 
@@ -136,3 +137,32 @@ Feature table v2 adds feature-level quality flags:
 The quality checks show that the feature table contains 6 records. One record is currently analysis-ready based on the feature-level rules. The remaining records contain missing patient features, a length-of-stay issue or cost-related issues.
 
 This step demonstrates that feature engineering does not remove data quality risks automatically. Feature tables require their own validation checks.
+
+## Analysis-ready feature subset
+
+The project now includes an analysis-ready feature subset based on `feature_admission_v2`.
+
+The view `feature_admission_analysis_ready` selects only records where `is_analysis_ready = TRUE`. This creates a first subset for technical analysis.
+
+Current result:
+
+- analysis-ready records: 1
+- included admission: `A001`
+- rejected admissions: `A003`, `A005`, `A006`, `A007`, `A008`
+
+Rejected records are audited with feature-level reasons:
+
+- missing patient features
+- length-of-stay issue
+- cost issue
+
+This subset is not the same as a fully clean dataset. A fully clean selection would apply all quality flags and is stricter. In this small synthetic dataset, that would leave no records.
+
+This subset is also not ML-ready yet. Before machine learning, the project still needs:
+
+- target definition
+- leakage checks
+- train/test split
+- metric selection
+- baseline model
+- error analysis
