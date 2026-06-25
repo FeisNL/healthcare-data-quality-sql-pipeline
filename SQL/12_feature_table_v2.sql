@@ -14,6 +14,9 @@ analysevoorbereiding en als oefening in betrouwbare feature engineering.
 ===============================================================================
 */
 
+ALTER VIEW feature_admission_v2
+RENAME COLUMN has_length__of_stay_issue to has_length_of_stay_issue
+
 CREATE OR REPLACE VIEW feature_admission_v2 AS
 WITH feature_flags AS (
     SELECT
@@ -66,6 +69,14 @@ SELECT
         ELSE FALSE
     END AS is_analysis_ready
 FROM feature_flags;
+
+-- meta data query: checking if column names are correct
+SELECT
+    column_name,
+    data_type
+FROM information_schema.columns
+WHERE table_name = 'feature_admission_v2'
+ORDER BY ordinal_position;
 
 SELECT COUNT(*)
 FROM feature_admission_v2;
