@@ -37,3 +37,18 @@ Een strengere all-flags controle gaf 0 volledig schone records. Dit laat zien da
 ## Vervolgstap
 
 Een logische vervolgstap is het maken van een analyse-ready subset op basis van `feature_admission_v2`, waarbij alleen records met `is_analysis_ready = TRUE` worden gebruikt voor eerste eenvoudige analyses.
+
+## Eigen uitleg
+
+In mijn eigen woorden betekent `is_analysis_ready`:
+de dataset kan gebruikt worden een eerste technosche analyse, dit wil nog niet zeggen dat het dataset geschikt is voor ML.
+
+Een record wordt niet automatisch verwijderd omdat:
+het record kan andere velden bevatten die voor ons nuttig zijn om te gebruiken voor analyses met andere doeleinden
+
+Het verschil tussen analysis-ready en fully clean is:
+Fully clean betekent dat de dataset geen enkele quality flag heeft, terwijl analysis ready inhoudt dat het dataset geschikt is voor een specifieke analyse aan de hand van onze feature level quality flags
+
+Deze check is belangrijk voor latere ML omdat:
+...
+
