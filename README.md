@@ -166,3 +166,18 @@ This subset is also not ML-ready yet. Before machine learning, the project still
 - metric selection
 - baseline model
 - error analysis
+
+## Current milestone 26-6-2026
+
+The project now includes a first Python validation step.
+
+The SQL view `feature_admission_v2` was exported to CSV and validated with pandas.  
+Python confirmed the expected row count, analysis-ready distribution and issue flag counts based on the SQL validation contract.
+
+Current validation files:
+
+- `SQL/15_validation_summary.sql`
+- `Docs/validation_contract.md`
+- `src/profile_feature_table.py`
+- `Docs/python_learning_log.md`
+- `Docs/python_sql_validation_notes.md`
