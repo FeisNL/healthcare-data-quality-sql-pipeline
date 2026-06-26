@@ -1,0 +1,7 @@
+"admission_id","patient_id","department_standardized","admission_date","discharge_date","length_of_stay_days","total_cost","gender_standardized","birth_date","age_at_admission","has_missing_department","has_negative_total_cost","has_unrealistic_age","has_invalid_gender_value","has_missing_patient_features","has_length_of_stay_issue","has_cost_issue","is_analysis_ready"
+A001,P001,Cardiology,2023-03-01,2023-03-05,4,1250.50,M,1984-03-12,38.0,false,false,false,false,false,false,false,true
+A003,P003,Emergency,2023-04-10,2023-04-15,5,1500.00,,,,false,false,,,true,false,false,false
+A005,P004,Cardiology,2023-05-01,,,2000.00,F,1890-11-30,132.0,false,false,true,false,false,true,false,false
+A006,P005,Cardiology,2023-05-10,2023-05-12,2,-300.00,M,1978-09-14,44.0,false,true,false,false,false,false,true,false
+A007,P006,Emergency,2023-06-01,2023-06-20,19,999999.99,F,1988-12-05,34.0,false,false,false,false,false,false,true,false
+A008,P007,,2023-06-15,2023-06-16,1,750.00,,,,true,false,,,true,false,false,false
