@@ -1,71 +1,106 @@
 # Healthcare Data Quality SQL Pipeline
 
-## 1. Projectdoel
+## Project Goal
 
-Dit project controleert de kwaliteit van synthetische healthcare-data met SQL. De focus ligt op missing values, duplicaten, ongeldige waarden, foutieve datums, inconsistente categorieën, referentiële fouten en outliers.
+This project builds a healthcare data quality pipeline using PostgreSQL and Python.
 
-Het project is opgezet als eerste portfolio-project binnen het AI/Data Application Engineer-traject. De nadruk ligt niet alleen op SQL-query’s schrijven, maar ook op data quality-denken, documentatie, reproduceerbaarheid en het ontwerpen van een eerste cleaned layer.
+The goal is to load raw healthcare data, identify data quality issues, create cleaned and curated SQL views, build an admission-level feature table, and validate exported data with Python.
 
-## 2. Dataset
+The focus is not only on writing SQL queries, but also on:
 
-De dataset bestaat uit drie CSV-bestanden:
+* data quality thinking
+* reproducible SQL workflows
+* validation checks
+* documentation
+* Python-based data validation
+* portfolio-ready project structure
 
-- `patients.csv`
-- `admissions.csv`
-- `lab_results.csv`
+## Dataset
 
-De data bevat bewust fouten, zodat data quality checks getest kunnen worden. Voorbeelden van ingebouwde fouten zijn ontbrekende patiënt-ID’s, dubbele records, toekomstige datums, inconsistente categorieën, referentiële fouten en negatieve of extreme waarden.
+The project uses synthetic healthcare data from three CSV files:
 
-## 3. Eerste focus
+* `patients.csv`
+* `admissions.csv`
+* `lab_results.csv`
 
-De eerste fase richt zich op:
+The data intentionally contains quality issues, including:
 
-- schema exploration;
-- data profiling;
-- data quality checks;
-- documentatie van bevindingen;
-- ontwerp van een cleaned layer;
-- SQL views met quality flags;
-- versiebeheer met Git.
+* missing values
+* duplicate records
+* invalid dates
+* inconsistent categories
+* referential integrity issues
+* negative values
+* extreme values
+* missing patient-derived features
 
-## 4. Projectstructuur
+These issues are used to practice realistic data quality checks and pipeline design.
 
-```text
-healthcare-data-quality-sql-pipeline/
-├── Data/
-│   └── Raw/
-│       ├── patients.csv
-│       ├── admissions.csv
-│       └── lab_results.csv
-├── Docs/
-│   ├── data_quality_memo.md
-│   └── cleaned_layer_design.md
-├── SQL/
-│   ├── 00_create_tables.sql
-│   ├── 01_schema_exploration.sql
-│   ├── 02_data_quality_checks.sql
-│   ├── 03_sql_refresh_exercises.sql
-│   ├── 04_my_own_checks.sql
-│   └── 05_cleaned_layer_views.sql
-└── README.mdBlok 7 klaar:
+## Current Status
 
-## 5. Data Quality Report
+The project currently includes:
 
-The project now includes an initial SQL-based data quality report:
+* raw healthcare CSV data
+* PostgreSQL table creation scripts
+* schema exploration queries
+* SQL data quality checks
+* cleaned SQL views with quality flags
+* curated analysis views
+* an admission-level feature table
+* feature-level quality flags
+* an analysis-ready subset
+* a SQL validation summary
+* a validation contract
+* Python validation of the exported feature table CSV
 
-- `SQL/06_data_quality_report.sql`
+The current validated feature table is:
 
-This report summarizes quality flags from the cleaned views and counts the number of issue records per entity and quality check.
+`feature_admission_v2`
 
-Current report scope:
+## Project Structure
 
-- patient quality checks;
-- admission quality checks;
-- lab result quality checks.
+Main folders:
 
-The report uses `UNION ALL` to combine issue counts from multiple cleaned views into one reproducible overview. Duplicate flags are counted at record level, meaning that all records involved in a duplicate issue are included in the issue count.
+* `Data/Raw/`
+  Original raw CSV files.
+
+* `Data/Processed/`
+  Exported and validated intermediate CSV files.
+
+* `SQL/`
+  PostgreSQL scripts for table creation, data quality checks, cleaned views, curated views, feature tables and validation summaries.
+
+* `src/`
+  Python scripts for profiling and validation.
+
+* `Docs/`
+  Project documentation, validation contracts, design notes and learning logs.
+
+* `Notebooks/`
+  Reserved for exploratory analysis and later ML experiments. Not currently part of the reproducible pipeline.
+
+For a more detailed explanation, see:
+
+`Docs/project_structure.md`
+
+## Pipeline Overview
+
+Current pipeline flow:
+
+1. Load raw CSV data into PostgreSQL.
+2. Explore table schemas and row counts.
+3. Run initial SQL data quality checks.
+4. Create cleaned views with standardized values and quality flags.
+5. Create curated analysis views.
+6. Build an admission-level feature table.
+7. Add feature-level quality flags.
+8. Create an analysis-ready subset.
+9. Generate a SQL validation summary.
+10. Export `feature_admission_v2` to CSV.
+11. Validate the exported CSV with Python and pandas.
 
 ## Reproducible Run Order
+
 To reproduce the current SQL pipeline, run the scripts in this order:
 
 1. `SQL/00_create_tables.sql`
@@ -82,102 +117,129 @@ To reproduce the current SQL pipeline, run the scripts in this order:
 12. `SQL/12_feature_table_v2.sql`
 13. `SQL/13_feature_table_v2_quality_checks.sql`
 14. `SQL/14_analysis_ready_feature_view.sql`
+15. `SQL/15_validation_summary.sql`
 
-The cleaned views should preserve the raw row counts:
+## Current Feature Table
 
-- `cleaned_patients`: 10 records
-- `cleaned_admissions`: 10 records
-- `cleaned_lab_results`: 10 records
+The current feature table is created in:
 
-If a cleaned view returns more rows than the raw table, this may indicate row multiplication caused by a join on a non-unique key.
+`SQL/12_feature_table_v2.sql`
 
-## Feature Table Draft
+It contains admission-level records and includes feature-level quality flags:
 
-The project now includes a first draft of an admission-level feature table:
-
-- `SQL/10_feature_table_draft.sql`
-- `Docs/feature_table_design.md`
-
-The feature table uses curated admissions and curated patients as input. It includes derived fields such as `length_of_stay_days` and `age_at_admission`.
-
-The first feature table check showed that some admissions can have NULL patient features when the admission remains in `curated_admissions`, but the linked patient is excluded from `curated_patients`. These cases are documented as a data quality design issue.
-
-This is not yet a machine learning dataset. A target variable, leakage checks, train/test split and evaluation strategy still need to be defined.
-
-## Feature Table Quality Checks
-
-The project now includes quality checks for the first feature table:
-
-- `SQL/11_feature_table_quality_checks.sql`
-
-These checks validate row count, admission-level grain, missing patient features, derived date features and cost-related risks.
-
-The checks showed that the feature table keeps the expected admission-level grain, but still contains important data quality signals:
-
-- admissions `A003` and `A008` have missing patient-derived features;
-- one admission has a missing `length_of_stay_days` because `discharge_date` is missing;
-- cost-related risks remain present, including one negative and one extreme `total_cost`.
-
-This step shows that feature engineering does not remove data quality risks automatically. Feature tables also need their own validation checks.
-
-## Feature Table V2
-
-The project now includes a second feature table view:
-
-- `SQL/12_feature_table_v2.sql`
-- `SQL/13_feature_table_v2_quality_checks.sql`
-
-Feature table v2 adds feature-level quality flags:
-
-- `has_missing_patient_features`
-- `has_length_of_stay_issue`
-- `has_cost_issue`
-- `is_analysis_ready`
-
-The quality checks show that the feature table contains 6 records. One record is currently analysis-ready based on the feature-level rules. The remaining records contain missing patient features, a length-of-stay issue or cost-related issues.
-
-This step demonstrates that feature engineering does not remove data quality risks automatically. Feature tables require their own validation checks.
-
-## Analysis-ready feature subset
-
-The project now includes an analysis-ready feature subset based on `feature_admission_v2`.
-
-The view `feature_admission_analysis_ready` selects only records where `is_analysis_ready = TRUE`. This creates a first subset for technical analysis.
+* `has_missing_patient_features`
+* `has_length_of_stay_issue`
+* `has_cost_issue`
+* `is_analysis_ready`
 
 Current result:
 
-- analysis-ready records: 1
-- included admission: `A001`
-- rejected admissions: `A003`, `A005`, `A006`, `A007`, `A008`
+* total records: `6`
+* analysis-ready records: `1`
+* rejected records: `5`
 
-Rejected records are audited with feature-level reasons:
+The analysis-ready subset is created in:
 
-- missing patient features
-- length-of-stay issue
-- cost issue
+`SQL/14_analysis_ready_feature_view.sql`
 
-This subset is not the same as a fully clean dataset. A fully clean selection would apply all quality flags and is stricter. In this small synthetic dataset, that would leave no records.
+This subset currently includes only records where:
 
-This subset is also not ML-ready yet. Before machine learning, the project still needs:
+`is_analysis_ready = TRUE`
 
-- target definition
-- leakage checks
-- train/test split
-- metric selection
-- baseline model
-- error analysis
+## SQL Validation
 
-## Current milestone 26-6-2026
+The central SQL validation summary is stored in:
 
-The project now includes a first Python validation step.
+`SQL/15_validation_summary.sql`
 
-The SQL view `feature_admission_v2` was exported to CSV and validated with pandas.  
-Python confirmed the expected row count, analysis-ready distribution and issue flag counts based on the SQL validation contract.
+This script produces the expected values used to validate the exported CSV in Python.
 
-Current validation files:
+Current expected values:
 
-- `SQL/15_validation_summary.sql`
-- `Docs/validation_contract.md`
-- `src/profile_feature_table.py`
-- `Docs/python_learning_log.md`
-- `Docs/python_sql_validation_notes.md`
+| Check                                 | Expected Value |
+| ------------------------------------- | -------------: |
+| `feature_admission_v2` row count      |              6 |
+| `is_analysis_ready = TRUE`            |              1 |
+| `is_analysis_ready = FALSE`           |              5 |
+| `has_missing_patient_features = TRUE` |              2 |
+| `has_length_of_stay_issue = TRUE`     |              1 |
+| `has_cost_issue = TRUE`               |              2 |
+
+The validation contract is documented in:
+
+`Docs/validation_contract.md`
+
+## Python Validation
+
+The project includes a first Python validation step.
+
+The SQL view `feature_admission_v2` was exported to:
+
+`Data/Processed/feature_admission_v2.csv`
+
+The Python script:
+
+`src/profile_feature_table.py`
+
+loads the CSV with pandas and validates:
+
+* row count
+* column count
+* missing values
+* `is_analysis_ready` distribution
+* issue flag distributions
+
+Python confirmed that the exported CSV matches the SQL validation contract.
+
+Current validation result:
+
+* row count: `PASS`
+* column count: `PASS`
+* analysis-ready distribution: `PASS`
+* issue flag counts: `PASS`
+
+Related documentation:
+
+* `Docs/validation_contract.md`
+* `Docs/python_sql_validation_notes.md`
+* `Docs/python_learning_log.md`
+
+## Current Limitations
+
+This project is not yet a complete machine learning pipeline.
+
+Before machine learning can be added, the project still needs:
+
+* target definition
+* leakage checks
+* train/test split
+* metric selection
+* baseline model
+* error analysis
+* clearer handling of rejected records
+* larger or more realistic healthcare data
+
+The current Python layer is used for validation and profiling, not for modeling yet.
+
+## Next Steps
+
+Planned next steps:
+
+1. Clean up and standardize project documentation in English.
+2. Improve README and documentation structure.
+3. Add reproducible setup instructions.
+4. Extend Python profiling beyond basic validation.
+5. Prepare the feature table for later ML experimentation.
+6. Add leakage checks before creating any ML model.
+7. Convert project outputs into portfolio-ready documentation.
+
+## Project Standard
+
+Going forward, project-facing files should be written in English:
+
+* README
+* documentation
+* code comments
+* commit messages
+
+Chat-based coaching and concept explanations remain in Dutch when useful.
