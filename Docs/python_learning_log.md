@@ -39,3 +39,20 @@ Algemeen patroon:
 
 Professioneel leerpunt:
 Bij een fout kijk ik eerst naar de regel waar het script stopt, daarna naar de foutmelding, daarna naar mijn aanname.
+
+## Python Validation Summary
+
+Today I added a validation summary to the Python profiling script.
+
+Key learning points:
+
+- A Python function can be used to avoid repeated logic.
+- `count_true()` counts how many values in a quality flag column are true.
+- `count_false()` counts how many values in a quality flag column are false.
+- `print_check()` compares an expected value with an actual value and prints PASS or FAIL.
+- A function can be called first, and its return value can then be passed into another function.
+- For readability, intermediate variables can make code easier to understand than compact nested function calls.
+
+Why this matters:
+
+The script can now automatically check whether the exported CSV matches the expected SQL validation results. This makes the workflow more reliable and easier to review.

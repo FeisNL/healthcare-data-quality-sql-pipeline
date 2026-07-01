@@ -153,3 +153,29 @@ Before using this data for machine learning, the project still needs:
 - baseline model
 - error analysis
 - a clearer decision about how rejected records should be handled 
+
+## Python Validation Summary
+
+A validation summary was added to `src/profile_feature_table.py`.
+
+The script now compares expected SQL validation results with the actual values found in the exported CSV.
+
+Validation checks:
+
+- Row count
+- Analysis-ready records
+- Rejected records
+- Missing patient feature issues
+- Length-of-stay issues
+- Cost issues
+
+Current result:
+
+- PASS: 6 checks
+- FAIL: 0 checks
+
+Interpretation:
+
+The Python validation confirms that the exported CSV matches the expected SQL validation counts. This means the export is technically consistent with the SQL feature table.
+
+This does not mean the data is fully analysis-ready. The profiling results still show missing values, invalid values and rejected records.
