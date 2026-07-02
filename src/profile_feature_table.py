@@ -67,6 +67,9 @@ print(df["department_standardized"].value_counts(dropna=False))
 print("\nGender standardized distribution:")
 print(df["gender_standardized"].value_counts(dropna=False))
 
+print("\nMissing department count")
+print(df[df["department_standardized"].isna()])
+
 # Inspect rejected records
 print("\n=== REJECTED RECORDS INSPECTION ===")
 
@@ -118,3 +121,24 @@ print_check("rejected records", 5, count_false(df, "is_analysis_ready"))
 print_check("missing patient features", 2, count_true(df, "has_missing_patient_features"))
 print_check("length-of-stay issues", 1, count_true(df, "has_length_of_stay_issue"))
 print_check("cost issues", 2, count_true(df, "has_cost_issue"))
+
+print("\n=== MISSING DEPARTMENT CHECK ===")
+
+missing_department_count = df["department_standardized"].isna().sum()
+
+print("Missing department count")
+print(missing_department_count)
+
+missing_department_records = df[df["department_standardized"].isna()]
+
+print("\nMissing department records")
+
+missing_department_columns = [
+                             "admission_id",
+                             "patient_id",
+                             "department_standardized",
+                             "has_cost_issue",
+                             "is_analysis_ready"
+                             ]
+
+print(missing_department_records[missing_department_columns].to_string(index=False))
