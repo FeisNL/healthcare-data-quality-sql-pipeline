@@ -338,3 +338,118 @@ A missing department value can affect department-level reporting, filtering and 
 - Understanding when Python defines, calculates, returns or prints.
 - Comparing SQL expected results with Python actual results.
 - Writing clear data quality interpretations.
+
+## Additional SQL/Python Checks: Gender and Cost
+
+### Missing Gender
+
+Data question:
+
+How many records have a missing `gender_standardized` value?
+
+SQL logic:
+
+Use `gender_standardized IS NULL`.
+
+Python logic:
+
+Use `df["gender_standardized"].isna().sum()` for the count and filter the DataFrame to inspect the affected records.
+
+Result:
+
+- SQL result: 2 records
+- Python result: 2 records
+- Affected admission_ids: A003, A008
+- Matching result: yes
+
+Data quality risk:
+
+Missing gender values can make demographic analysis incomplete. These records should not be used blindly in gender-based reporting or analysis. The source patient records should be checked before deciding whether to correct, exclude or keep these values with warning flags.
+
+### Negative Total Cost
+
+Data question:
+
+How many records have a negative `total_cost`?
+
+SQL logic:
+
+Use `total_cost < 0`.
+
+Python logic:
+
+Use `(df["total_cost"] < 0).sum()` for the count and filter the DataFrame to inspect the affected records.
+
+Result:
+
+- SQL result: 1 record
+- Python result: 1 record
+- Affected admission_id: A006
+- Matching result: yes
+
+Data quality risk:
+
+A negative cost value is likely invalid for financial analysis. It can distort totals, averages and cost-based reporting. The source record should be verified before deciding whether to correct, exclude or keep it with a warning flag.
+
+### Cost Issue Records
+
+Data question:
+
+Which records have `has_cost_issue = TRUE`?
+
+SQL logic:
+
+Use `has_cost_issue = TRUE`.
+
+Python logic:
+
+Use a robust true-check with `.astype(str).str.lower().eq("true")`.
+
+Result:
+
+- SQL result: 2 records
+- Python result: 2 records
+- Affected admission_ids: A006, A007
+- Matching result: yes
+
+Data quality risk:
+
+A count-only check shows how many records have a cost issue, but a detail-check shows which records are affected and which values caused the issue. This is needed for source verification and deciding how these records should be handled in cost analysis.
+
+### Debugging Note
+
+During this block, a pandas `KeyError` occurred because a Python variable name was used as a string column name. The issue was fixed by distinguishing between:
+
+- `df["column_name"]` for selecting one real column
+- `df[column_list_variable]` for selecting multiple columns stored in a Python variable
+
+This reinforces the difference between column names, strings and Python variables.
+
+### Missing Patient Features
+
+Data question:
+
+Which records have `has_missing_patient_features = TRUE`?
+
+SQL logic:
+
+Use `has_missing_patient_features = TRUE`.
+
+Python logic:
+
+Use a robust true-check with `.astype(str).str.lower().eq("true")`.
+
+Result:
+
+- SQL result: 2 records
+- Python result: 2 records
+- Affected admission_ids: A003, A008
+- Matching result: yes
+
+Data quality risk:
+
+Records with missing patient features are not reliable for patient-level analysis because important patient attributes are unavailable. These records should be investigated at the source before deciding whether to enrich, exclude or keep them with warning flags.
+
+Debugging note:
+
+This check reinforced the difference between `.str.lower()` as a pandas string method and incorrect forms such as `str_lower`. It also reinforced that real pandas column names must be written as strings, such as `df["has_missing_patient_features"]`.

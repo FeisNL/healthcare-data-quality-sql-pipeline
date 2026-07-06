@@ -138,7 +138,93 @@ missing_department_columns = [
                              "patient_id",
                              "department_standardized",
                              "has_cost_issue",
-                             "is_analysis_ready"
+                             "is_analysis_ready",
                              ]
 
 print(missing_department_records[missing_department_columns].to_string(index=False))
+
+
+print("\n=== ADDITIONAL DATA QUALITY CHECKS ===")
+
+print(df["gender_standardized"].isna().sum())
+
+print("\n***Overview records missing gender standardized***")
+
+missing_gender_standardized_records = df[df["gender_standardized"].isna()]
+
+missing_gender_standardized_records_columns = [
+                                        "admission_id",
+                                        "patient_id",
+                                        "gender_standardized",
+                                        ]
+
+print(missing_gender_standardized_records[missing_gender_standardized_records_columns].to_string(index=False))
+
+
+print("\n***Counting records total cost < 0***")
+
+print((df["total_cost"] < 0).sum())
+
+
+print("\n***Overview records total cost < 0***")
+
+totalcostunderzero_records = df[df["total_cost"] < 0]
+
+totalcostunderzero_records_columns = [
+                                    "admission_id",
+                                    "patient_id",
+                                    "total_cost",
+                                    ]
+
+print(totalcostunderzero_records[totalcostunderzero_records_columns].to_string(index=False))
+
+print("\n***Overview has cost issue is true***")
+
+has_cost_issue_true_records = df[
+                                df["has_cost_issue"].astype(str).str.lower().eq("true")
+                                ]
+
+has_cost_issue_true_columns = [
+                                "admission_id",
+                                "patient_id",
+                                "total_cost",
+                                "has_cost_issue",
+                                ]
+
+print(has_cost_issue_true_records[has_cost_issue_true_columns].to_string(index=False))
+
+
+print("\n***Records with missing patient features***")
+
+has_missing_patient_features_records = df[df["has_missing_patient_features"].astype(str).str.lower().eq('true')]
+
+has_missing_patient_features_columns = [
+					"admission_id",
+					"patient_id",
+					"has_missing_patient_features",
+					]
+
+print(has_missing_patient_features_records[has_missing_patient_features_columns].to_string(index=False))
+
+
+print("\n***beginner friendly version of the code above***")
+
+missing_patient_features_mask = (
+    df["has_missing_patient_features"].astype(str).str.lower().eq("true")
+)
+
+missing_patient_features_count = missing_patient_features_mask.sum()
+
+print("\n***Missing patient features count:***")
+print(missing_patient_features_count)
+
+missing_patient_features_records = df[missing_patient_features_mask]
+
+missing_patient_features_columns = [
+    "admission_id",
+    "patient_id",
+    "has_missing_patient_features",
+]
+
+print("\nMissing patient features records:")
+print(missing_patient_features_records[missing_patient_features_columns].to_string(index=False))
