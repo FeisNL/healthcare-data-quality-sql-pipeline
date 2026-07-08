@@ -453,3 +453,48 @@ Records with missing patient features are not reliable for patient-level analysi
 Debugging note:
 
 This check reinforced the difference between `.str.lower()` as a pandas string method and incorrect forms such as `str_lower`. It also reinforced that real pandas column names must be written as strings, such as `df["has_missing_patient_features"]`.
+
+## Large Dataset SQL/Python Validation
+
+Today, the small healthcare data quality pipeline was scaled to a larger synthetic healthcare dataset.
+
+### Output Produced
+
+- Created a large synthetic healthcare dataset design.
+- Added an ERD with table relationships.
+- Created five large raw/sandbox tables.
+- Inserted synthetic data into the large tables.
+- Ran SQL data quality checks on the large dataset.
+- Exported a SQL data quality summary to CSV.
+- Created `src/profile_large_dataset.py`.
+- Validated SQL summary counts with Python.
+- Result: 18 PASS, 0 FAIL.
+
+### Python Concepts Practiced
+
+- `Path` for file paths
+- `pd.read_csv()` for loading CSV data
+- DataFrame shape, columns and preview
+- dictionary with expected values
+- helper function `print_check()`
+- loop over `expected_counts.items()`
+- DataFrame filtering with `matching_rows`
+- `.empty` to detect missing checks
+- `.iloc[0]` to retrieve the first matching value
+- expected vs actual validation
+
+### Debugging / Learning Notes
+
+The Python script was easier to understand after restructuring it in execution order:
+
+1. imports
+2. file paths
+3. start header
+4. data loading
+5. basic inspection
+6. expected values
+7. helper functions
+8. validation loop
+9. PASS/FAIL output
+
+This structure will be used for future Python validation scripts.
