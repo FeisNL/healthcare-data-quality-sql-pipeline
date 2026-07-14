@@ -2,244 +2,320 @@
 
 ## Project Goal
 
-This project builds a healthcare data quality pipeline using PostgreSQL and Python.
+This project builds a healthcare data quality pipeline using PostgreSQL, SQL validation scripts and documented data quality rules, with Python validation added for selected pipeline outputs.
 
-The goal is to load raw healthcare data, identify data quality issues, create cleaned and curated SQL views, build an admission-level feature table, and validate exported data with Python.
+The main goal is to turn source-like healthcare data into reliable, analysis-ready datasets through a layered pipeline:
 
-The focus is not only on writing SQL queries, but also on:
+```text
+Raw layer
+↓
+Cleaned layer
+↓
+Curated layer
+↓
+Later: warehouse layer / Python validation / feature tables / ML baseline
+```
 
-* data quality thinking
-* reproducible SQL workflows
-* validation checks
-* documentation
-* Python-based data validation
-* portfolio-ready project structure
+The focus is not only on writing SQL queries, but on building a reliable and explainable data pipeline with:
 
-## Dataset
+- data quality checks
+- reproducible SQL workflows
+- cleaned and curated data layers
+- documented exclusion rules
+- validation scripts
+- expected-vs-actual checks
+- traceable rejected records
+- portfolio-ready documentation
 
-The project uses synthetic healthcare data from three CSV files:
+## Current Project Status
 
-* `patients.csv`
-* `admissions.csv`
-* `lab_results.csv`
+The current main focus is the **large synthetic healthcare pipeline**.
 
-The data intentionally contains quality issues, including:
+This pipeline contains five main healthcare entities:
 
-* missing values
-* duplicate records
-* invalid dates
-* inconsistent categories
-* referential integrity issues
-* negative values
-* extreme values
-* missing patient-derived features
-
-These issues are used to practice realistic data quality checks and pipeline design.
-
-## Current Status
+- patients
+- departments
+- providers
+- admissions
+- lab results
 
 The project currently includes:
 
-* raw healthcare CSV data
-* PostgreSQL table creation scripts
-* schema exploration queries
-* SQL data quality checks
-* cleaned SQL views with quality flags
-* curated analysis views
-* an admission-level feature table
-* feature-level quality flags
-* an analysis-ready subset
-* a SQL validation summary
-* a validation contract
-* Python validation of the exported feature table CSV
+- raw large healthcare tables
+- synthetic healthcare records with intentional data quality issues
+- cleaned SQL views with standardized fields and quality flags
+- curated analysis-ready SQL views
+- SQL validation scripts for row counts, issue counts and parent/reference links
+- expected-vs-actual PASS/FAIL validation checks
+- documentation for dataset design, cleaned layer design and curated layer results
 
-The current validated feature table is:
+The curated layer validation currently produces:
 
-`feature_admission_v2`
+```text
+15 PASS / 0 FAIL
+```
+
+## Dataset
+
+The current large dataset is generated with SQL scripts, while the earlier foundation dataset was loaded from CSV files.
+
+The project uses synthetic healthcare data.
+
+The current large dataset includes:
+
+| Entity | Row count |
+|---|---:|
+| Patients | 1,000 |
+| Departments | 8 |
+| Providers | 50 |
+| Admissions | 2,000 |
+| Lab results | 5,000 |
+
+The data intentionally contains quality issues, including:
+
+- missing values
+- duplicate business keys
+- unknown references
+- invalid dates
+- open admissions
+- negative values
+- extreme values
+- inconsistent categories
+- invalid parent/reference relationships
+
+These issues are used to practice realistic data quality checks, pipeline design and validation.
+
+## Pipeline Layers
+
+### 1. Raw Layer
+
+The raw layer stores source-like healthcare data.
+
+This layer intentionally allows data quality issues. It should not silently reject problematic records, because those records are needed for data quality investigation.
+
+Main scripts:
+
+- `SQL/16_create_large_synthetic_tables.sql`
+- `SQL/17_insert_large_synthetic_data.sql`
+- `SQL/18_large_data_quality_checks.sql`
+
+### 2. Cleaned Layer
+
+The cleaned layer standardizes selected fields and adds quality flags.
+
+The cleaned layer does not remove records. It keeps the same row counts as the raw layer, but makes data quality issues visible and traceable.
+
+Examples of cleaned-layer logic:
+
+- trim and standardize text fields
+- standardize categories
+- convert empty strings to `NULL`
+- flag missing values
+- flag duplicate business keys
+- flag unknown foreign key references
+- flag invalid dates
+- flag negative or extreme numeric values
+
+Main scripts:
+
+- `SQL/19_cleaned_large_layer_views.sql`
+- `SQL/20_cleaned_large_quality_checks.sql`
+
+### 3. Curated Layer
+
+The curated layer creates analysis-ready views from the cleaned layer.
+
+This layer applies documented exclusion rules. Records with relevant quality issues are excluded from curated views, but they remain available in the cleaned layer with their quality flags.
+
+For child tables, the curated layer is stricter than checking only the record itself.
+
+For admissions:
+
+- the admission itself must have no admission-level quality issue
+- the admission must link to a curated patient
+- the admission must link to a curated department
+- the admission must link to a curated provider
+
+For lab results:
+
+- the lab result itself must have no lab-result-level quality issue
+- the lab result must link to a curated admission
+- the lab result must link to a curated patient
+
+Main scripts:
+
+- `SQL/21_curated_large_layer_views.sql`
+- `SQL/22_curated_large_quality_checks.sql`
+
+## Curated Layer Results
+
+| Dataset | Cleaned row count | Curated row count | Rejected row count | Rejected percentage |
+|---|---:|---:|---:|---:|
+| Patients | 1,000 | 969 | 31 | 3.10% |
+| Departments | 8 | 7 | 1 | 12.50% |
+| Providers | 50 | 48 | 2 | 4.00% |
+| Admissions | 2,000 | 1,635 | 365 | 18.25% |
+| Lab results | 5,000 | 4,079 | 921 | 18.42% |
+
+Admissions and lab results have higher rejected counts because child records must also link to curated parent/reference records.
+
+## Curated Layer Validation
+
+The curated validation script checks:
+
+- whether all curated views exist
+- cleaned vs curated row counts
+- rejected row counts
+- whether curated records still contain their own quality issues
+- whether child records link to curated parent/reference records
+- expected-vs-actual validation results
+- sample rejected records with parent/join diagnostics
+
+Current validation result:
+
+| Validation type | Result |
+|---|---:|
+| Row count checks | 5 PASS / 0 FAIL |
+| Own quality issue checks | 5 PASS / 0 FAIL |
+| Parent/reference link checks | 5 PASS / 0 FAIL |
+| Total expected-vs-actual checks | 15 PASS / 0 FAIL |
+
+## Key Design Principle
+
+Cleaned makes data quality issues visible.  
+Curated makes documented analysis-ready decisions.  
+Validation checks prove whether each step is reliable enough.
+
+Rejected records are not deleted. They remain traceable in the cleaned layer with quality flags.
+
+## Main Large-Dataset Scripts
+
+| File | Purpose |
+|---|---|
+| `SQL/16_create_large_synthetic_tables.sql` | Create raw large healthcare tables |
+| `SQL/17_insert_large_synthetic_data.sql` | Insert synthetic healthcare records with intentional quality issues |
+| `SQL/18_large_data_quality_checks.sql` | Profile and count quality issues in the raw large dataset |
+| `SQL/19_cleaned_large_layer_views.sql` | Create cleaned views with standardized fields and quality flags |
+| `SQL/20_cleaned_large_quality_checks.sql` | Validate cleaned views and expected issue counts |
+| `SQL/21_curated_large_layer_views.sql` | Create analysis-ready curated views |
+| `SQL/22_curated_large_quality_checks.sql` | Validate curated row counts, exclusions and parent/reference links |
+
+## Supporting Documentation
+
+| File | Purpose |
+|---|---|
+| `Docs/pipeline_overview.md` | Explains the full raw-to-cleaned-to-curated pipeline |
+| `Docs/large_dataset_design.md` | Documents the large synthetic healthcare dataset design |
+| `Docs/large_cleaned_layer_design.md` | Documents cleaned layer logic and quality flags |
+| `Docs/large_curated_layer_design.md` | Documents curated layer inclusion and exclusion rules |
+| `Docs/curated_layer_results.md` | Summarizes curated row counts, rejected records and validation results |
 
 ## Project Structure
 
 Main folders:
 
-* `Data/Raw/`
-  Original raw CSV files.
-
-* `Data/Processed/`
-  Exported and validated intermediate CSV files.
-
-* `SQL/`
-  PostgreSQL scripts for table creation, data quality checks, cleaned views, curated views, feature tables and validation summaries.
-
-* `src/`
-  Python scripts for profiling and validation.
-
-* `Docs/`
-  Project documentation, validation contracts, design notes and learning logs.
-
-* `Notebooks/`
-  Reserved for exploratory analysis and later ML experiments. Not currently part of the reproducible pipeline.
+| Folder | Purpose |
+|---|---|
+| `Data/Raw/` | Original raw CSV files for the foundation dataset |
+| `Data/Processed/` | Exported and validated intermediate CSV files |
+| `SQL/` | PostgreSQL scripts for table creation, data quality checks, cleaned views, curated views and validation |
+| `src/` | Python scripts for profiling and validation |
+| `Docs/` | Project documentation, validation notes, design decisions and learning logs |
+| `Notebooks/` | Reserved for exploratory analysis and later ML experiments |
 
 For a more detailed explanation, see:
 
-`Docs/project_structure.md`
+- `Docs/project_structure.md`
+- `Docs/pipeline_overview.md`
 
-## Pipeline Overview
+## Foundation Pipeline
 
-Current pipeline flow:
+The project started with a smaller foundation dataset using three CSV files:
 
-1. Load raw CSV data into PostgreSQL.
-2. Explore table schemas and row counts.
-3. Run initial SQL data quality checks.
-4. Create cleaned views with standardized values and quality flags.
-5. Create curated analysis views.
-6. Build an admission-level feature table.
-7. Add feature-level quality flags.
-8. Create an analysis-ready subset.
-9. Generate a SQL validation summary.
-10. Export `feature_admission_v2` to CSV.
-11. Validate the exported CSV with Python and pandas.
+- `patients.csv`
+- `admissions.csv`
+- `lab_results.csv`
 
-## Reproducible Run Order
+This foundation pipeline was used to practice:
 
-To reproduce the current SQL pipeline, run the scripts in this order:
+- raw table creation
+- schema exploration
+- SQL data quality checks
+- cleaned views
+- curated analysis views
+- admission-level feature tables
+- SQL validation summaries
+- Python validation with pandas
 
-1. `SQL/00_create_tables.sql`
-2. Import the CSV files from `Data/Raw/` into PostgreSQL.
-3. `SQL/01_schema_exploration.sql`
-4. `SQL/02_data_quality_checks.sql`
-5. `SQL/05_cleaned_layer_views.sql`
-6. `SQL/06_data_quality_report.sql`
-7. `SQL/07_quality_report_validation.sql`
-8. `SQL/08_curated_analysis_views.sql`
-9. `SQL/09_curated_analysis_queries.sql`
-10. `SQL/10_feature_table_draft.sql`
-11. `SQL/11_feature_table_quality_checks.sql`
-12. `SQL/12_feature_table_v2.sql`
-13. `SQL/13_feature_table_v2_quality_checks.sql`
-14. `SQL/14_analysis_ready_feature_view.sql`
-15. `SQL/15_validation_summary.sql`
+The validated foundation feature table was:
 
-## Current Feature Table
+```text
+feature_admission_v2
+```
 
-The current feature table is created in:
+The foundation pipeline is still part of the repository, but the current main focus is the larger synthetic healthcare pipeline.
 
-`SQL/12_feature_table_v2.sql`
+Foundation scripts include:
 
-It contains admission-level records and includes feature-level quality flags:
+| File | Purpose |
+|---|---|
+| `SQL/00_create_tables.sql` | Create tables for the raw CSV data |
+| `SQL/01_schema_exploration.sql` | Inspect tables, columns, row counts and basic values |
+| `SQL/02_data_quality_checks.sql` | Find and prove data quality issues |
+| `SQL/05_cleaned_layer_views.sql` | Create cleaned views for the foundation dataset |
+| `SQL/06_data_quality_report.sql` | Summarize data quality issues |
+| `SQL/07_quality_report_validation.sql` | Validate expected issue counts |
+| `SQL/08_curated_analysis_views.sql` | Create curated analysis views |
+| `SQL/10_feature_table_draft.sql` | Create the first admission-level feature table |
+| `SQL/12_feature_table_v2.sql` | Create the improved feature table |
+| `SQL/14_analysis_ready_feature_view.sql` | Create the analysis-ready feature subset |
+| `SQL/15_validation_summary.sql` | Summarize final validation results |
 
-* `has_missing_patient_features`
-* `has_length_of_stay_issue`
-* `has_cost_issue`
-* `is_analysis_ready`
+Python validation for the foundation feature table is available in:
 
-Current result:
+```text
+src/profile_feature_table.py
+```
 
-* total records: `6`
-* analysis-ready records: `1`
-* rejected records: `5`
+Large-dataset profiling and validation work is available in:
 
-The analysis-ready subset is created in:
-
-`SQL/14_analysis_ready_feature_view.sql`
-
-This subset currently includes only records where:
-
-`is_analysis_ready = TRUE`
-
-## SQL Validation
-
-The central SQL validation summary is stored in:
-
-`SQL/15_validation_summary.sql`
-
-This script produces the expected values used to validate the exported CSV in Python.
-
-Current expected values:
-
-| Check                                 | Expected Value |
-| ------------------------------------- | -------------: |
-| `feature_admission_v2` row count      |              6 |
-| `is_analysis_ready = TRUE`            |              1 |
-| `is_analysis_ready = FALSE`           |              5 |
-| `has_missing_patient_features = TRUE` |              2 |
-| `has_length_of_stay_issue = TRUE`     |              1 |
-| `has_cost_issue = TRUE`               |              2 |
-
-The validation contract is documented in:
-
-`Docs/validation_contract.md`
-
-## Python Validation
-
-The project includes a first Python validation step.
-
-The SQL view `feature_admission_v2` was exported to:
-
-`Data/Processed/feature_admission_v2.csv`
-
-The Python script:
-
-`src/profile_feature_table.py`
-
-loads the CSV with pandas and validates:
-
-* row count
-* column count
-* missing values
-* `is_analysis_ready` distribution
-* issue flag distributions
-
-Python confirmed that the exported CSV matches the SQL validation contract.
-
-Current validation result:
-
-* row count: `PASS`
-* column count: `PASS`
-* analysis-ready distribution: `PASS`
-* issue flag counts: `PASS`
-
-Related documentation:
-
-* `Docs/validation_contract.md`
-* `Docs/python_sql_validation_notes.md`
-* `Docs/python_learning_log.md`
+```text
+src/profile_large_dataset.py
+```
 
 ## Current Limitations
 
 This project is not yet a complete machine learning pipeline.
 
-Before machine learning can be added, the project still needs:
+Current limitations:
 
-* target definition
-* leakage checks
-* train/test split
-* metric selection
-* baseline model
-* error analysis
-* clearer handling of rejected records
-* larger or more realistic healthcare data
-
-The current Python layer is used for validation and profiling, not for modeling yet.
+- the large curated layer has not yet been exported and validated with Python
+- no warehouse/star schema has been created yet
+- provider-to-department consistency checks can be improved
+- no large-dataset feature table has been built yet
+- no target variable has been defined for machine learning
+- leakage checks, train/test split and model evaluation are not implemented yet
+- business review may be needed for strict exclusion rules
 
 ## Next Steps
 
 Planned next steps:
 
-1. Clean up and standardize project documentation in English.
-2. Improve README and documentation structure.
-3. Add reproducible setup instructions.
-4. Extend Python profiling beyond basic validation.
-5. Prepare the feature table for later ML experimentation.
-6. Add leakage checks before creating any ML model.
-7. Convert project outputs into portfolio-ready documentation.
+1. Add provider-to-department consistency checks.
+2. Add Python validation for curated exports.
+3. Build a warehouse layer with fact and dimension tables.
+4. Create analysis-ready feature tables for the large dataset.
+5. Define a target variable for later ML experimentation.
+6. Add leakage checks before building any ML model.
+7. Prepare portfolio-ready setup and reproducibility instructions.
 
 ## Project Standard
 
-Going forward, project-facing files should be written in English:
+Project-facing files should be written in English:
 
-* README
-* documentation
-* code comments
-* commit messages
+- README
+- documentation
+- code comments
+- commit messages
 
-Chat-based coaching and concept explanations remain in Dutch when useful.
+Chat-based coaching and concept explanations can remain in Dutch when useful.
